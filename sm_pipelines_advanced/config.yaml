@@ -1,0 +1,15 @@
+SchemaVersion: '1.0'
+SageMaker:
+  PythonSDK:
+    Modules:
+      RemoteFunction:
+        # role arn is not required if in SageMaker Notebook instance or SageMaker Studio
+        # Uncomment the following line and replace with the right execution role if in a local IDE
+        #RoleArn: arn:aws:iam::<...>:role/service-role/AmazonSageMaker-ExecutionRole-<...>
+        RoleArn: arn:aws:iam::944771376927:role/service-role/AmazonSageMaker-ExecutionRole-20220609T182197
+        InstanceType: ml.m5.xlarge
+        Dependencies: ./requirements.txt
+        WorkdirConfig:
+          IgnoreNamePatterns: # files or directories to ignore
+          - "*.ipynb" # all notebook files
+          - "__pycache__"
