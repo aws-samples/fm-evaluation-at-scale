@@ -1,5 +1,48 @@
 import boto3
 import yaml
+from datetime import datetime
+
+
+def is_finetuning(model):
+    if "finetuning_config" in model.config.keys():
+        return True
+    else:
+        return False
+
+def find_model_by_name(model_list, model_name):
+    for model in model_list:
+        if model.config["name"] == model_name:
+            return model
+
+    return None
+
+def create_training_job_name(model):
+    model_id = model.config["model_id"]
+    return f"{model_id}-{datetime.now().strftime('%Y-%m-%d-%H-%M-%S-%f')[:-3]}"
+
+
+def get_step_name(name, model):
+    return name+"_"+model.config["name"]
+
+def get_deploy_step_name(model):
+    return "deploy_"+model.config["name"]
+
+
+def get_finetune_step_name(model):
+    return "finetune_"+model.config["name"]
+
+
+def get_deploy_finetuned_step_name(model):
+    return "deploy_finetuned_"+model.config["name"]
+
+
+def get_register_step_name(model):
+    return "register_"+model.config["name"]
+
+
+def get_cleanup_step_name(model):
+    return "cleanup_"+model.config["name"]
+
 
 def endpoint_exists(endpoint_name):
     endpoint_exist = False
@@ -14,14 +57,6 @@ def endpoint_exists(endpoint_name):
             break
 
     return endpoint_exist
-
-
-def find_model_by_name(model_list, model_name):
-    for model in model_list:
-        if model.config["name"] == model_name:
-            return model
-
-    return None
 
 
 class ConfigParser:

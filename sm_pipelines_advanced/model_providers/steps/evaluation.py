@@ -42,7 +42,7 @@ def evaluation(model, data_config, algorithm_config, preprocess_step_ret, deploy
 
     eval_output_all = []
     s3 = boto3.resource("s3")
-    output_bucket, output_index = parse_s3_url(data_s3_path)
+    output_bucket, output_index = parse_s3_url(model.config["output_data_path"])
 
     for algorithm in algorithm_config:
         # TODO: handle algorithm type

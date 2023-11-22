@@ -2,6 +2,8 @@
 
 This solution streamlines the customer journey by facilitating the evaluation process of Large Language Models at scale, offering an automated and efficient approach 
 that enhances the overall experience and ensures a smoother path to decision-making.  
+
+
 The implementation is made by combining Amazon SageMaker Clarify and Amazon SageMaker Pipelines.
 We provide pipeline implementations that automates different steps of an evaluation process such as data preprocess, model deploy, model evaluation,
 best model selection, resources cleanup. Model fine-tuning is also supported as a preliminary step.  

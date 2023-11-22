@@ -31,7 +31,7 @@ models:
 
   - name: "falcon-7b"
     model_provider: "jumpstart"
-    model_id: "llm-eval-adv-huggingface-llm-falcon-7b-bf16"
+    model_id: "huggingface-llm-falcon-7b-bf16"
     model_version: "*"
     endpoint_name: "llm-evaluation-huggingface-llm-falcon-7b-bf16"
     deployment_config:
@@ -50,6 +50,10 @@ models:
         accept_eula: True
       prompt_template: '$feature'
     cleanup_endpoint: True
+
+model_registry:
+  model_package_group_name: "LLMEvaluationPipeline"
+  model_package_group_description: "LLM Evaluation Pipeline"
 
 algorithms:
   - algorithm: "FactualKnowledge" 

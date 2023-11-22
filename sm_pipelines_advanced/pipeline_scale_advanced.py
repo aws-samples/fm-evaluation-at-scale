@@ -11,9 +11,11 @@ from sagemaker.workflow.step_outputs import get_step
 from model_providers.steps.preprocess import preprocess
 from model_providers.steps.selection import selection
 from model_providers.steps.evaluation import evaluation
+from model_providers.steps.register import register
 
-from lib.utils import ConfigParser
+from lib.utils import ConfigParser, is_finetuning, create_training_job_name
 from lib.import_models import import_models
+from lib.utils import get_step_name
 
 
 if __name__ == "__main__":
@@ -33,23 +35,24 @@ if __name__ == "__main__":
     if args.config:
         config = ConfigParser(args.config).get_config()
     else:
-        config = ConfigParser('pipeline_config.yaml').get_config()
+        #config = ConfigParser('pipeline_config.yaml').get_config()
         #config = ConfigParser('pipeline_finetuning_config.yaml').get_config()
         #config = ConfigParser('pipeline_scale_config.yaml').get_config()
-        #config = ConfigParser('pipeline_scale_hybrid_config.yaml').get_config()
+        config = ConfigParser('pipeline_scale_hybrid_config.yaml').get_config()
 
-    evalution_exec_id = datetime.now().strftime("%Y_%m_%d_%H_%M_%S")
+    evaluation_exec_id = datetime.now().strftime("%Y_%m_%d_%H_%M_%S")
     pipeline_name = config["pipeline"]["name"]
     dataset_config = config["dataset"]  # Get dataset configuration
     input_data_path = args.input_data_path + "/" + dataset_config["input_data_location"]
     output_data_path = (
-        args.input_data_path + "/output_" + pipeline_name + "_" + evalution_exec_id
+        args.input_data_path + "/output_" + pipeline_name + "_" + evaluation_exec_id
     )
 
     print("Data input location:", input_data_path)
     print("Data output location:", output_data_path)
 
     algorithms_config = config["algorithms"] # Get algorithms configuration
+    model_registry_config = config["model_registry"]
 
     # Construct the steps
     preprocess_step_ret = step(preprocess, name="preprocess")(input_data_path, output_data_path)
@@ -61,14 +64,24 @@ if __name__ == "__main__":
     # Crate finetune, deploy and evaluation step for each model:
     evaluation_results_ret_list = []
     for model in models:
-        if model.is_finetuning():
-            finetune_step_ret = step(model.finetune_step, name=model.get_finetune_step_name(), keep_alive_period_in_seconds=2400)(model)
-            deploy_step_ret = step(model.deploy_finetuned_step, name=model.get_deploy_finetuned_step_name())(model, finetune_step_ret)
+
+        model.config["output_data_path"] = output_data_path
+
+        if is_finetuning(model):
+            model.config["finetuning_config"]["training_job_name"] = create_training_job_name(model)
+            model.config["finetuning_config"]["train_data_path"] = args.input_data_path + "/" + model.config["finetuning_config"]["train_data_path"]
+            model.config["finetuning_config"]["validation_data_path"] = args.input_data_path + "/" + model.config["finetuning_config"]["validation_data_path"]
+
+            print("Train input location:", model.config["finetuning_config"]["train_data_path"])
+            print("Validation input location:", model.config["finetuning_config"]["validation_data_path"])
+
+            finetune_step_ret = step(model.finetune_step, name=get_step_name("finetune", model), keep_alive_period_in_seconds=2400)(model)
+            deploy_step_ret = step(model.deploy_finetuned_step, name=get_step_name("deploy", model))(model, finetune_step_ret)
         else:
-            deploy_step_ret = step(model.deploy_step, name=model.get_deploy_step_name())(model)
+            deploy_step_ret = step(model.deploy_step, name=get_step_name("deploy", model))(model)
 
         model_id = model.config["model_id"]
-        evaluation_step_ret = step(evaluation, name=f"evaluation_{model_id}", keep_alive_period_in_seconds=1200)(
+        evaluation_step_ret = step(evaluation, name=get_step_name("evaluation", model), keep_alive_period_in_seconds=1200)(
             model,
             dataset_config,
             algorithms_config,
@@ -77,26 +90,26 @@ if __name__ == "__main__":
 
         evaluation_results_ret_list.append(evaluation_step_ret)
 
+    selection_step_ret = None
     if managing_multi_model:
         selection_step_ret = step(selection, name="model_selection")(*evaluation_results_ret_list)
+
+    model_registry_ret = step(register, name="best_model_registration")(models,
+                                                               model_registry_config,
+                                                               selection_step_ret,
+                                                               *evaluation_results_ret_list)
 
     # Create cleanup steps
     pipeline_ret_list = []
     for model in models:
         if model.config["cleanup_endpoint"]:
-            cleanup_step_ret = step(model.cleanup_step, name=model.get_cleanup_step_name())(model)
-            if managing_multi_model:
-                get_step(cleanup_step_ret).add_depends_on([selection_step_ret])
-            else:
-                get_step(cleanup_step_ret).add_depends_on(evaluation_results_ret_list)
+            cleanup_step_ret = step(model.cleanup_step, name=get_step_name("cleanup", model))(model)
+            get_step(cleanup_step_ret).add_depends_on([model_registry_ret])
 
             pipeline_ret_list.append(cleanup_step_ret)
 
     if len(pipeline_ret_list) == 0:
-        if managing_multi_model:
-            pipeline_ret_list.append(selection_step_ret)
-        else:
-            pipeline_ret_list = evaluation_results_ret_list
+        pipeline_ret_list.append(model_registry_ret)
 
     # Define the Sagemaker Pipeline
     pipeline = Pipeline(

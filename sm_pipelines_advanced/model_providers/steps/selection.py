@@ -9,9 +9,7 @@ def selection(*args):
         model_name = arg['model_name']
 
         eval_result = arg['evaluation_output']
-        print("Eval Results: "+ eval_result)
         eval_output = eval_result[0][0]
-        print("Eval Output: "+ eval_output)
         eval_score = eval_output.dataset_scores[0].value
         print(eval_score)
 
