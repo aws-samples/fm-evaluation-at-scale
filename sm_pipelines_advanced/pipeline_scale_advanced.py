@@ -77,8 +77,11 @@ if __name__ == "__main__":
         else:
             deploy_step_ret = step(model.deploy_step, name=get_step_name("deploy", model))(model)
 
-        evaluation_step_ret = step(evaluation, name=get_step_name("evaluation", model), keep_alive_period_in_seconds=1200)(
-            model, dataset_config, algorithms_config, preprocess_step_ret, deploy_step_ret)
+        evaluation_step_ret = (step(evaluation,
+                                    name=get_step_name("evaluation", model),
+                                    keep_alive_period_in_seconds=1200,
+                                    pre_execution_commands=["pip install fmeval=0.2.0"])
+                               (model, dataset_config, algorithms_config, preprocess_step_ret, deploy_step_ret))
 
         evaluation_results_ret_list.append(evaluation_step_ret)
 
