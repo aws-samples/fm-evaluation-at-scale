@@ -119,7 +119,12 @@ if __name__ == "__main__":
     )
 
     evaluation_results = step(
-        evaluation, name=f"evaluation_{model_id}", keep_alive_period_in_seconds=1200
+        evaluation,
+        name=f"evaluation_{model_id}",
+        keep_alive_period_in_seconds=1200,
+        pre_execution_commands=[
+            "pip install fmeval==0.2.0",
+        ],
     )(
         processed_data_path,
         endpoint_name,
