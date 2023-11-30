@@ -1,4 +1,4 @@
-sagemaker_remote_function_workspace/sagemaker-2.197.1.dev0.tar.gz
 pandas
-sagemaker_remote_function_workspace/fmeval-0.1.0-py3-none-any.whl
 ipywidgets
+sagemaker==2.199.0
+markdown
