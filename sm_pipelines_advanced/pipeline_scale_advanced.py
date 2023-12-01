@@ -80,17 +80,22 @@ if __name__ == "__main__":
         evaluation_step_ret = (step(evaluation,
                                     name=get_step_name("evaluation", model),
                                     keep_alive_period_in_seconds=1200,
-                                    pre_execution_commands=["pip install fmeval=0.2.0"])
+                                    pre_execution_commands=["pip install fmeval==0.2.0"])
                                (model, dataset_config, algorithms_config, preprocess_step_ret, deploy_step_ret))
 
         evaluation_results_ret_list.append(evaluation_step_ret)
 
     selection_step_ret = None
     if managing_multi_model:
-        selection_step_ret = step(selection, name="model_selection")(*evaluation_results_ret_list)
+        selection_step_ret = (step(selection,
+                                   name="model_selection",
+                                   pre_execution_commands=["pip install fmeval==0.2.0"])
+                              (*evaluation_results_ret_list))
 
-    model_registry_ret = step(register, name="best_model_registration")(models, model_registry_config,
-                                                                        selection_step_ret, *evaluation_results_ret_list)
+    model_registry_ret = (step(register,
+                               name="best_model_registration",
+                               pre_execution_commands=["pip install fmeval==0.2.0"])
+                          (models, model_registry_config, selection_step_ret, *evaluation_results_ret_list))
 
     # Create cleanup steps
     pipeline_ret_list = []

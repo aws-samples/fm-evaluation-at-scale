@@ -32,7 +32,8 @@ class ModelPipelineStepsJumpStart(ModelPipelineSteps):
                                         instance_type=model.config["deployment_config"]["instance_type"],
                                         serializer=sagemaker.serializers.JSONSerializer(),
                                         deserializer=sagemaker.deserializers.JSONDeserializer(),
-                                        endpoint_name=endpoint_name)
+                                        endpoint_name=endpoint_name,
+                                        accept_eula=True)
 
         return {"model_deployed": True}
 
