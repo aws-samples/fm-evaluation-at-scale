@@ -8,7 +8,8 @@ SageMaker:
         #RoleArn: arn:aws:iam::<...>:role/service-role/AmazonSageMaker-ExecutionRole-<...>
         InstanceType: ml.m5.xlarge
         Dependencies: ./requirements.txt
-        WorkdirConfig:
+        IncludeLocalWorkDir: true
+        CustomFileFilter:
           IgnoreNamePatterns: # files or directories to ignore
           - "*.ipynb" # all notebook files
           - "__pycache__"

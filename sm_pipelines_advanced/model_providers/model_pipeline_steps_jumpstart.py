@@ -5,7 +5,6 @@ from sagemaker.jumpstart.estimator import JumpStartEstimator
 from sagemaker import ModelMetrics, MetricsSource
 from sagemaker import get_execution_role
 from sagemaker import image_uris, model_uris, Model, script_uris
-from fmeval.model_runners.sm_jumpstart_model_runner import JumpStartModelRunner
 from lib.utils import endpoint_exists, find_model_by_name, is_finetuning
 import s3fs as s3fs
 import boto3
@@ -33,7 +32,8 @@ class ModelPipelineStepsJumpStart(ModelPipelineSteps):
                                         instance_type=model.config["deployment_config"]["instance_type"],
                                         serializer=sagemaker.serializers.JSONSerializer(),
                                         deserializer=sagemaker.deserializers.JSONDeserializer(),
-                                        endpoint_name=endpoint_name)
+                                        endpoint_name=endpoint_name,
+                                        accept_eula=True)
 
         return {"model_deployed": True}
 
@@ -222,6 +222,8 @@ class ModelPipelineStepsJumpStart(ModelPipelineSteps):
 
     @staticmethod
     def get_model_runner(model, content_template):
+
+        from fmeval.model_runners.sm_jumpstart_model_runner import JumpStartModelRunner
 
         endpoint_name = model.config["endpoint_name"]
 

@@ -12,7 +12,7 @@ models:
   - name: "llama2-7b-f"
     model_provider: "jumpstart"
     model_id: "meta-textgeneration-llama-2-7b-f"
-    model_version: "*"
+    model_version: "2.*"
     endpoint_name: "llm-eval-adv-meta-textgeneration-llama-2-7b-f"
     deployment_config:
       instance_type: "ml.g5.2xlarge"
