@@ -15,6 +15,7 @@ def deploy_finetuned_model(training_job_name, model_id, endpoint_name, instance_
                                      instance_type=instance_type,
                                      serializer=sagemaker.serializers.JSONSerializer(),
                                      deserializer=sagemaker.deserializers.JSONDeserializer(),
-                                     endpoint_name=endpoint_name)
+                                     endpoint_name=endpoint_name,
+                                     accept_eula = True)
 
     return endpoint_name

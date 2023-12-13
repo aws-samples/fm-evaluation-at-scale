@@ -16,7 +16,8 @@ def deploy(model_id, model_version, endpoint_name, instance_type="ml.g5.2xlarge"
                                     instance_type=instance_type,
                                     serializer=sagemaker.serializers.JSONSerializer(),
                                     deserializer=sagemaker.deserializers.JSONDeserializer(), 
-                                    endpoint_name=endpoint_name)
+                                    endpoint_name=endpoint_name,
+                                    accept_eula = True)
         #endpoint_name = predictor.endpoint_name
     
     return endpoint_name
