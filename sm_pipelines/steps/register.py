@@ -52,6 +52,10 @@ def register(
         model_id=model_id,
         model_version=model_version,
     )
+
+    if (isinstance(best_model.model_data, dict) and 'S3DataSource' in best_model.model_data):
+        best_model.model_data = best_model.model_data['S3DataSource']['S3Uri']
+
     model_package = best_model.register(
         model_package_group_name=model_package_group_name,
         content_types=["application/json"],

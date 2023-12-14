@@ -1,6 +1,6 @@
 pandas
 ipywidgets
-sagemaker==2.199.0
-fmeval==0.2.0
+sagemaker
+fmeval
 markdown
 s3fs
