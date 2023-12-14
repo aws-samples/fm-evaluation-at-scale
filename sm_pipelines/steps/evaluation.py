@@ -53,8 +53,8 @@ def evaluation(
         endpoint_name=endpoint_name,
         model_id=model_config["model_id"],
         model_version=model_config["model_version"],
-        output=evaluation_config["output"],
-        content_template=content_template,
+        #output=evaluation_config["output"], #deprecated
+        #content_template=content_template, #deprecated
         custom_attributes="accept_eula=true",
     )
 

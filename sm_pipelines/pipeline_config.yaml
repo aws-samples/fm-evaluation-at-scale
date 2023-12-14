@@ -11,7 +11,7 @@ dataset:
 models:
   - name: "llama2-7b"
     model_id: "meta-textgeneration-llama-2-7b"
-    model_version: "*"
+    model_version: "3.0.0"
     endpoint_name: "llm-eval-meta-textgeneration-llama-2-7b"
     deployment_config:
       instance_type: "ml.g5.2xlarge"
