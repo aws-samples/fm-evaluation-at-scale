@@ -5,3 +5,4 @@ pandas
 gevent
 geventhttpclient
 Markdown
+sagemaker
